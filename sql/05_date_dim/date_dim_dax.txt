@@ -1,0 +1,27 @@
+-- ============================================================
+-- POWER BI DATE DIMENSION (DAX Formula)
+-- Copy and paste this into Power BI Desktop:
+--   Home → Transform Data → New Table → paste this formula
+-- ============================================================
+
+DimDate =
+ADDCOLUMNS(
+    CALENDAR(
+        MIN('public bi_fact_sales'[purchase_date]),
+        MAX('public bi_fact_sales'[purchase_date])
+    ),
+    "Year",        YEAR([Date]),
+    "Month No",    MONTH([Date]),
+    "Month",       FORMAT([Date], "MMM"),
+    "Year-Month",  FORMAT([Date], "YYYY-MM"),
+    "Quarter",     "Q" & FORMAT([Date], "Q"),
+    "Weekday No",  WEEKDAY([Date], 2),
+    "Weekday",     FORMAT([Date], "DDD"),
+    "Month Start", DATE(YEAR([Date]), MONTH([Date]), 1)
+)
+
+-- ────────────────────────────────────────────────────────
+-- After creating DimDate, connect it in Power BI:
+-- Model View → drag DimDate[Date] → bi_fact_sales[purchase_date]
+-- Set relationship: Many-to-One, Single direction
+-- ────────────────────────────────────────────────────────

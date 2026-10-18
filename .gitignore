@@ -1,0 +1,44 @@
+# ============================================================
+# .gitignore — Olist E-Commerce Analytics Project
+# ============================================================
+
+# --- Raw Data (too large for GitHub, 120 MB) ---
+data/raw/*.csv
+data/raw/*.xlsx
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# --- Jupyter Notebooks checkpoints ---
+.ipynb_checkpoints
+
+# --- Power BI temporary files ---
+*.pbix.lock
+~*.pbix
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDE files ---
+.vscode/
+.idea/
+*.suo
+*.user
+
+# --- Logs ---
+*.log
+
+# --- RFM output CSV (optional: comment out if you want to include it) ---
+# reports/rfm_customer_segments.csv
