@@ -1,10 +1,11 @@
 # 🛒 Olist Brazilian E-Commerce — Full Stack Data Analytics Project
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Streamlit-Interactive%20Web%20App-FF4B4B?logo=streamlit&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Scikit--Learn-AI%20Predictor-F7931E?logo=scikitlearn&logoColor=white"/>
   <img src="https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Python-3.14-yellow?logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/Power%20BI-DirectQuery-orange?logo=powerbi&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Dataset-Olist%20Kaggle-red?logo=kaggle&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Python-3.14-yellow?logo=python&logoColor=white"/>
   <img src="https://img.shields.io/badge/Records-100K%2B-green"/>
 </p>
 
@@ -54,6 +55,8 @@ olist-ecommerce-analytics/
 │
 ├── 📁 python/
 │   └── eda_analysis.py               # EDA + RFM Segmentation script
+│
+├── 🚀 app.py                         # Streamlit Interactive Web App + AI ML Predictor
 │
 ├── 📁 powerbi/
 │   └── ecom.pbix                     # Power BI Dashboard (8 pages)
@@ -221,7 +224,7 @@ sql/04_views/bi_views.sql           → Builds the BI star schema views
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/olist-ecommerce-analytics.git
+git clone https://github.com/Manojgs001/olist-ecommerce-analytics.git
 cd olist-ecommerce-analytics
 
 # Install dependencies
@@ -233,7 +236,22 @@ python python/eda_analysis.py
 
 ---
 
-### Phase 3 — Power BI Dashboard
+### Phase 3 — Launch the Interactive Streamlit Web App & AI Predictor 🚀
+
+```bash
+# Launch the live interactive web dashboard
+streamlit run app.py
+```
+> Features:
+> - 📊 Dynamic KPI summary cards & monthly revenue trend
+> - 🗺️ State-level filtering & category breakdown
+> - 👥 Interactive RFM Customer Segment Explorer
+> - 🔮 **AI Delivery Risk Predictor**: Real-time Machine Learning model (Random Forest) predicting delivery delays with interactive parameter sliders!
+> - 💡 Executive Briefing & strategic business recommendations
+
+---
+
+### Phase 4 — Power BI Dashboard
 
 1. Open `powerbi/ecom.pbix` in Power BI Desktop
 2. `Home → Transform Data → Data Source Settings` → Update PostgreSQL connection
