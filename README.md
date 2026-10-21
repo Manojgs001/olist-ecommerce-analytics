@@ -289,7 +289,7 @@ python python/eda_analysis.py
 
 **Manoj**
 - 📧 Data Analyst | SQL · Python · Power BI
-- 🔗 [LinkedIn](https://linkedin.com) | [GitHub](https://github.com)
+- 🔗 [GitHub Profile](https://github.com/Manojgs001) | [Repository](https://github.com/Manojgs001/olist-ecommerce-analytics)
 
 ---
 
