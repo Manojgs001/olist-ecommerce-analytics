@@ -25,8 +25,9 @@ plt.rcParams["axes.spines.right"] = False
 sns.set_palette("Set2")
 
 # ── Paths ────────────────────────────────────────────────────
-DATA_DIR    = r"c:\Users\manoj\OneDrive\Desktop\Data analyst\data\raw"
-REPORTS_DIR = r"c:\Users\manoj\OneDrive\Desktop\Data analyst\reports"
+BASE_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR    = os.path.join(BASE_DIR, "data", "raw")
+REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 os.makedirs(REPORTS_DIR, exist_ok=True)
 
 # ============================================================
@@ -150,15 +151,24 @@ print("📊 Chart saved: 02_top10_categories_revenue.png")
 # 6. ORDER STATUS DISTRIBUTION
 # ============================================================
 status_counts = df.drop_duplicates("order_id")["order_status"].value_counts()
+total_orders_cnt = status_counts.sum()
 
-fig, ax = plt.subplots(figsize=(7, 5))
-wedges, texts, autotexts = ax.pie(
-    status_counts, labels=status_counts.index, autopct="%1.1f%%",
-    startangle=90, pctdistance=0.82
+fig, ax = plt.subplots(figsize=(8, 5))
+wedges, texts = ax.pie(
+    status_counts,
+    labels=None,
+    startangle=140,
+    colors=sns.color_palette("Set2", len(status_counts)),
+    wedgeprops=dict(width=0.4, edgecolor='white', linewidth=1.5)
 )
-ax.set_title("Order Status Distribution", fontsize=14, fontweight="bold")
+
+legend_labels = [f"{s.replace('_', ' ').capitalize()}: {c:,} ({c/total_orders_cnt*100:.1f}%)" 
+                 for s, c in status_counts.items()]
+ax.legend(wedges, legend_labels, title="Order Status", loc="center left", bbox_to_anchor=(1, 0.5), fontsize=9, frameon=True)
+ax.text(0, 0, f"Total Orders\n{total_orders_cnt:,}", ha='center', va='center', fontsize=11, fontweight='bold')
+ax.set_title("Order Status Distribution", fontsize=14, fontweight="bold", pad=15)
 plt.tight_layout()
-plt.savefig(f"{REPORTS_DIR}/03_order_status_distribution.png", dpi=150)
+plt.savefig(f"{REPORTS_DIR}/03_order_status_distribution.png", dpi=150, bbox_inches='tight')
 print("🍩 Chart saved: 03_order_status_distribution.png")
 
 # ============================================================
@@ -204,12 +214,24 @@ print("⭐ Chart saved: 05_review_score_distribution.png")
 pay_type = (payments.groupby("payment_type")["payment_value"]
                      .sum()
                      .sort_values(ascending=False))
+total_pay_val = pay_type.sum()
 
-fig, ax = plt.subplots(figsize=(7, 5))
-ax.pie(pay_type, labels=pay_type.index, autopct="%1.1f%%", startangle=90)
-ax.set_title("Payment Type Share by Value", fontsize=14, fontweight="bold")
+fig, ax = plt.subplots(figsize=(8, 5))
+wedges, texts = ax.pie(
+    pay_type,
+    labels=None,
+    startangle=140,
+    colors=sns.color_palette("Set2", len(pay_type)),
+    wedgeprops=dict(width=0.4, edgecolor='white', linewidth=1.5)
+)
+
+pay_legend_labels = [f"{ptype.replace('_', ' ').title()}: R${val/1e6:.2f}M ({val/total_pay_val*100:.1f}%)" 
+                     for ptype, val in pay_type.items()]
+ax.legend(wedges, pay_legend_labels, title="Payment Method", loc="center left", bbox_to_anchor=(1, 0.5), fontsize=9, frameon=True)
+ax.text(0, 0, f"Total Value\nR${total_pay_val/1e6:.2f}M", ha='center', va='center', fontsize=11, fontweight='bold')
+ax.set_title("Payment Type Share by Value", fontsize=14, fontweight="bold", pad=15)
 plt.tight_layout()
-plt.savefig(f"{REPORTS_DIR}/06_payment_type_share.png", dpi=150)
+plt.savefig(f"{REPORTS_DIR}/06_payment_type_share.png", dpi=150, bbox_inches='tight')
 print("💳 Chart saved: 06_payment_type_share.png")
 
 # ============================================================
