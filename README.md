@@ -54,7 +54,8 @@ olist-ecommerce-analytics/
 │       └── date_dim_dax.txt          # Power BI DimDate (DAX)
 │
 ├── 📁 python/
-│   └── eda_analysis.py               # EDA + RFM Segmentation script
+│   ├── eda_analysis.py               # EDA + RFM Segmentation script
+│   └── geospatial_analysis.py        # Brazil Regional & Geospatial Logistics script
 │
 ├── 🚀 app.py                         # Streamlit Interactive Web App + AI ML Predictor
 │
@@ -69,7 +70,9 @@ olist-ecommerce-analytics/
 │   ├── 05_review_score_distribution.png
 │   ├── 06_payment_type_share.png
 │   ├── 07_rfm_segmentation.png
-│   └── rfm_customer_segments.csv
+│   ├── 08_brazil_geospatial_density.png
+│   ├── rfm_customer_segments.csv
+│   └── state_logistics_metrics.csv
 │
 ├── 📄 requirements.txt
 ├── 📄 .gitignore
@@ -154,6 +157,21 @@ olist-ecommerce-analytics/
 | 😴 At Risk | 3,236 | 443 days | R$ 33.5 |
 
 > **41% of customers** (Potential Loyalists) are the best re-engagement opportunity — they purchased recently enough to win back with targeted offers.
+
+---
+
+### 8. Brazil Regional Disparities & Logistics Lead Times
+![Brazil Geospatial Logistics](reports/08_brazil_geospatial_density.png)
+
+| Macro-Region | Delivered Orders | Avg Delivery Days | Avg Freight (R$) | Late Delivery Rate (%) |
+|:---|---:|---:|---:|---:|
+| 🏙️ **Southeast** (SP, RJ, MG, ES) | 66,200 | **10.3 days** | **R$ 19.84** | **7.5%** |
+| 🌾 **South** (PR, SC, RS) | 13,814 | **13.6 days** | **R$ 24.35** | **7.1%** |
+| 🏜️ **Central-West** (DF, GO, MT, MS) | 5,624 | **14.6 days** | **R$ 26.49** | **8.0%** |
+| 🏖️ **Northeast** (BA, PE, CE, etc.) | 9,044 | **19.5 days** | **R$ 35.99** | **14.3%** |
+| 🌳 **North** (AM, PA, RO, etc.) | 1,796 | **22.1 days** | **R$ 41.35** | **9.8%** |
+
+> **Key Logistics Takeaway**: The **Southeast region** accounts for 68% of e-commerce volume and benefits from the lowest freight and fastest deliveries (10 days). In contrast, the **North and Northeast** suffer from transit bottlenecks resulting in **double the freight cost** and delivery times reaching up to **22 days**. Setting up regional distribution centers in the Northeast would directly resolve late delivery complaints and improve review ratings.
 
 ---
 

@@ -97,10 +97,17 @@ def load_data():
     else:
         rfm = pd.DataFrame()
 
-    return df, payments, rfm
+    # Load State Logistics if precalculated
+    state_geo_path = os.path.join(REPORTS_DIR, "state_logistics_metrics.csv")
+    if os.path.exists(state_geo_path):
+        state_geo = pd.read_csv(state_geo_path)
+    else:
+        state_geo = pd.DataFrame()
+
+    return df, payments, rfm, state_geo
 
 with st.spinner("⚡ Loading Olist E-Commerce dataset..."):
-    df, payments, rfm = load_data()
+    df, payments, rfm, state_geo = load_data()
 
 # ── Sidebar Controls ─────────────────────────────────────────
 st.sidebar.image("https://img.icons8.com/fluency/96/shopping-cart.png", width=70)
@@ -149,8 +156,9 @@ col6.metric("⭐ Avg Rating", f"{avg_rating:.2f} / 5")
 st.markdown("---")
 
 # ── Navigation Tabs ──────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📊 Executive BI Overview",
+    "🗺️ Brazil Geospatial & Regional Maps",
     "🚚 Logistics & Operations",
     "👥 RFM Customer Segments",
     "🔮 AI Delivery Risk Predictor",
@@ -224,9 +232,129 @@ with tab1:
         st.plotly_chart(fig_pay, use_container_width=True)
 
 # ============================================================
-# TAB 2: LOGISTICS & OPERATIONS
+# TAB 2: BRAZIL GEOSPATIAL & REGIONAL MAPS
 # ============================================================
 with tab2:
+    st.subheader("🗺️ Brazilian Geospatial Logistics & Regional Distribution")
+    st.markdown("""
+    Explore e-commerce sales, delivery lead times, and freight costs across Brazil's 27 states and 5 macro-regions.
+    """)
+
+    if not state_geo.empty:
+        col_m1, col_m2 = st.columns([8, 4])
+
+        with col_m1:
+            metric_choice = st.selectbox(
+                "Select Map Metric to Visualize:",
+                options=["Total Revenue (R$)", "Order Volume", "Late Delivery Rate (%)", "Avg Delivery Days", "Avg Freight Cost (R$)"],
+                index=0
+            )
+
+            metric_map = {
+                "Total Revenue (R$)": ("total_revenue", "Blues", "Total Revenue (R$)"),
+                "Order Volume": ("order_count", "Viridis", "Total Orders"),
+                "Late Delivery Rate (%)": ("late_pct", "Reds", "Late Deliveries (%)"),
+                "Avg Delivery Days": ("avg_delivery_days", "Oranges", "Avg Delivery Days"),
+                "Avg Freight Cost (R$)": ("avg_freight", "Purples", "Avg Freight (R$)")
+            }
+
+            col_col, color_theme, title_label = metric_map[metric_choice]
+
+            # Interactive Plotly Scatter Geo Map of Brazil
+            fig_map = px.scatter_geo(
+                state_geo,
+                lat="lat",
+                lon="lng",
+                size="order_count",
+                color=col_col,
+                hover_name="state_name",
+                hover_data={
+                    "customer_state": True,
+                    "region": True,
+                    "order_count": ":,",
+                    "total_revenue": ":,.2f",
+                    "avg_delivery_days": ":.1f",
+                    "late_pct": ":.1f%",
+                    "avg_freight": ":,.2f",
+                    "lat": False,
+                    "lng": False
+                },
+                color_continuous_scale=color_theme,
+                size_max=35,
+                title=f"Brazil State-by-State: {title_label} (Bubble Size = Order Volume)"
+            )
+
+            fig_map.update_geos(
+                fitbounds="locations",
+                visible=False,
+                showcountries=True,
+                countrycolor="#cbd5e1",
+                showsubunits=True,
+                subunitcolor="#e2e8f0",
+                showland=True,
+                landcolor="#f8fafc",
+                center=dict(lat=-14.2350, lon=-51.9253),
+                projection_scale=3.5
+            )
+            fig_map.update_layout(height=480, margin=dict(l=0, r=0, t=40, b=0))
+            st.plotly_chart(fig_map, use_container_width=True)
+
+        with col_m2:
+            st.markdown("#### 🇧🇷 Regional Disparities")
+            reg_agg = state_geo.groupby("region").agg(
+                Orders=("order_count", "sum"),
+                Avg_Days=("avg_delivery_days", "mean"),
+                Avg_Freight=("avg_freight", "mean"),
+                Late_Pct=("late_pct", "mean")
+            ).round(1).reset_index().sort_values("Orders", ascending=False)
+
+            fig_reg = px.bar(
+                reg_agg, x="region", y="Orders",
+                title="Order Concentration by Region",
+                color="region",
+                color_discrete_sequence=px.colors.qualitative.Safe
+            )
+            fig_reg.update_layout(height=260, showlegend=False, xaxis_title="", yaxis_title="Orders")
+            st.plotly_chart(fig_reg, use_container_width=True)
+
+            st.info("""
+            **Key Geospatial Insight**:
+            - **Southeast (SP, RJ, MG)** accounts for over **68% of all orders** with the fastest delivery (~10 days).
+            - **North & Northeast** face long transit distances resulting in **double the freight cost** and ~20–22 day lead times.
+            """)
+
+        st.markdown("#### 📋 State-Level Logistics Scorecard")
+        display_cols = ["customer_state", "state_name", "region", "order_count", "total_revenue", "avg_order_value", "avg_freight", "avg_delivery_days", "late_pct"]
+        st.dataframe(
+            state_geo[display_cols].rename(columns={
+                "customer_state": "State Code",
+                "state_name": "State Name",
+                "region": "Macro-Region",
+                "order_count": "Orders",
+                "total_revenue": "Total Revenue (R$)",
+                "avg_order_value": "AOV (R$)",
+                "avg_freight": "Freight (R$)",
+                "avg_delivery_days": "Avg Days",
+                "late_pct": "Late %"
+            }).sort_values("Orders", ascending=False),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        csv_download = state_geo.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download State Logistics CSV",
+            data=csv_download,
+            file_name="olist_state_logistics_metrics.csv",
+            mime="text/csv"
+        )
+    else:
+        st.warning("State logistics data not found. Please run python/geospatial_analysis.py first.")
+
+# ============================================================
+# TAB 3: LOGISTICS & OPERATIONS
+# ============================================================
+with tab3:
     st.subheader("🚚 Delivery Lead Times & Delay Analysis")
 
     c_log1, c_log2 = st.columns(2)
@@ -263,9 +391,9 @@ with tab2:
         st.plotly_chart(fig_rev, use_container_width=True)
 
 # ============================================================
-# TAB 3: RFM CUSTOMER SEGMENTATION
+# TAB 4: RFM CUSTOMER SEGMENTATION
 # ============================================================
-with tab3:
+with tab4:
     st.subheader("👥 RFM Customer Loyalty & Value Segmentation")
 
     if not rfm.empty:
@@ -302,9 +430,9 @@ with tab3:
         st.warning("RFM data file not found. Run python/eda_analysis.py to generate.")
 
 # ============================================================
-# TAB 4: AI LATE DELIVERY RISK PREDICTOR (MACHINE LEARNING)
+# TAB 5: AI LATE DELIVERY RISK PREDICTOR (MACHINE LEARNING)
 # ============================================================
-with tab4:
+with tab5:
     st.subheader("🔮 Machine Learning: Real-Time Late Delivery Risk Predictor")
     st.markdown("""
     This predictive model is trained using **Random Forest Classification** to estimate the likelihood 
@@ -378,9 +506,9 @@ with tab4:
             st.success(f"✅ **Low Risk ({prob_late:.1f}%)**: Standard ground shipping is expected to arrive on or before the estimated date.")
 
 # ============================================================
-# TAB 5: EXECUTIVE INSIGHTS COPILOT
+# TAB 6: EXECUTIVE INSIGHTS COPILOT
 # ============================================================
-with tab5:
+with tab6:
     st.subheader("💡 Strategic Business Briefing")
     
     st.markdown("""
